@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react'
+import Image from "next/image";
+import Link from "next/link";
+import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from "react";
 
-const Quiz =async () => {
-
+export default async function Home() {
 
   const response = await fetch('https://jsonplaceholder.typicode.com/users');
   const users = await response.json();
 
 
-  return (
-    <div>
-      
 
+  return (
+    <div className="bg-amber-500 w-[400px] m-auto overflow-y-hidden h-[100vh]">
 
       <p>sdsdfsdf</p>
 
@@ -38,7 +36,5 @@ const Quiz =async () => {
         width={100} height={100}
       />
     </div>
-  )
+  );
 }
-
-export default Quiz
