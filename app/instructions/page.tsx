@@ -18,9 +18,9 @@ const Instructions = () => {
         </li>
       </ul>
 
-      <Link href={'/'} className='mx-auto'>
+      <Link href={'/'} className='mx-auto w-1/2'>
         <button
-          className="bg-white px-4 cursor-pointer "
+          className="bg-white text-xl  py-2 w-full rounded-lg cursor-pointer "
         >
          חזרה להתחלה
         </button>

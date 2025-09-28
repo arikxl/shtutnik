@@ -1,6 +1,7 @@
 // 'use client'
 
 import Intro from "@/components/Intro";
+import PlayersNames from "@/components/PlayersNames";
 import Image from "next/image";
 import Link from "next/link";
 // import {  useState } from "react";
@@ -17,7 +18,8 @@ export default  function Home() {
   return (
     <div className="flex items-center h-full">
 
-      <Intro />
+      {/* <Intro /> */}
+      <PlayersNames />
 
 
 

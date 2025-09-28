@@ -2,11 +2,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
+
 const Intro = () => {
 
 
 
-
+    
 
   return (
       <div className="w-full flex flex-col items-center h-full ">
