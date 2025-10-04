@@ -1,80 +1,88 @@
 'use client'
 
-
-import { checkAuthConnection, generateRandomSlug } from '../utils/utils'
+import { useState } from 'react';
+import { generateRandomSlug } from '../utils/utils'
 import { supabase } from '@/supabase-client';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
-
-const createGame = async (gameSlug) => {
-
-
-    // const filePath = `${File.name}-${Date.now()}-${post.title}`;
-    const { error: uploadError } = await supabase.storage.from('post-images').upload(filePath, imgFile)
-
-    if (uploadError) throw new Error(uploadError.message);
-
-    const { data: publicUrlData } = supabase.storage.from('post-images').getPublicUrl(filePath);
-
-    // const { data, error } = await supabase.from('posts').insert({ ...post, img_url: publicUrlData.publicUrl });
-
-
-    // if (error) throw new Error(error.message)
-
+const createGame = async (gameSlug: string, player1Name: string, player2Name: string) => {
+    const { data, error } = await supabase.from('games').insert(
+        { slug: gameSlug, player1_name: player1Name, player2_name: player2Name }
+    );
+    if (error) throw new Error(error.message)
     return data
 }
 
 const PlayersNames = () => {
+    const router = useRouter();
+    const [slug] = useState(() => generateRandomSlug());
+    // console.log(gameSlug)
+
+    const [name1, setName1] = useState('');
+    const [name2, setName2] = useState('');
 
 
-    const gameSlug = generateRandomSlug();
-    console.log(gameSlug)
+    const { mutate, isPending, isError } = useMutation({
+        mutationFn: () => {
+            return createGame(slug, name1, name2)
+        },
+        onSuccess: () => {
+            console.log("Game created successfully! Navigating to gamePage.");
+            router.push(`/game/${slug}`);
+        },
+    })
 
 
-    // checkAuthConnection()
+    const handleStartGame = () => {
+        if (!name1 || !name2) return;
+        mutate()
+    };
 
 
     return (
-      
+
+        <div className="w-full flex flex-col items-center h-full ">
+
+            <h1 className="mt-10 text-5xl font-bold">
+                מי משחק?
+            </h1>
+
+            <div className='my-10 w-full flex items-center justify-center'>
+                <input type='text' value={name1} required
+                    placeholder='שם שחקן/ית 1'
+                    onChange={(e) => setName1(e.target.value)}
+                    className='bg-white w-7/10 text-center p-4'
+
+                />
+            </div>
+
+            <div className='mt-2 mb-20 w-full flex items-center justify-center'>
+                <input type='text' value={name2} required
+                    onChange={(e) => setName2(e.target.value)}
+
+                    placeholder='שם שחקן/ית 2'
+                    className='bg-white w-7/10 text-center p-4'
+
+                />
+            </div>
 
 
 
-
-      <div className="w-full flex flex-col items-center h-full ">
-
-
-          <h1 className="mt-10 text-5xl font-bold">
-              {Math.random() > 0.5 ? 'מי משחקים? ' : 'מי משחקות?'}
-              
-          </h1>
-        
-
-          <div className='my-10 w-full flex items-center justify-center'>
-              <input type='text'
-                  placeholder={Math.random() > 0.5 ? 'שם שחקן 1' : 'שם שחקנית 1'}
-
-              className='bg-white w-7/10 text-center p-4'
-              
-              />
-          </div>
-          <div className='mt-2 mb-20 w-full flex items-center justify-center'>
-              <input type='text'
-                  placeholder={Math.random() > 0.5 ? 'שם שחקן 2': 'שם שחקנית 2'}
-              className='bg-white w-7/10 text-center p-4'
-              
-              />
-          </div>
-       
+            <button
+                className="mb-6 bg-white text-xl py-2 w-1/2 rounded-lg  cursor-pointer "
+                onClick={handleStartGame}
+                disabled={isPending}
+            >
+                {isPending ? 'כבר מתחילים...' : 'בואו נתחיל!'}
 
 
-          <button
-              className="mb-6 bg-white text-xl py-2 w-1/2 rounded-lg  cursor-pointer "
-          >
-              בואו נתחיל!
-          </button>
+            </button>
 
+            {isError && <p className='text-red-500'>Try Again...</p>}
 
-      </div>
-  )
+        </div>
+    )
 }
 
 export default PlayersNames
