@@ -1,16 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import Loader from '@/components/Loader';
 import { supabase } from '@/supabase-client';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react'
 
 
 const fetchPostById = async (slug: string) => {
-
     const { data, error } = await supabase.from("games").select("*").eq("slug", slug).single();
-
     if (error) throw new Error(error.message);
     return data;
 }
@@ -19,7 +19,6 @@ const fetchPostById = async (slug: string) => {
 const GameDynamic = ({ params }: any) => {
 
     const { slug } = params;
-
 
     const { data, error, isLoading } = useQuery({
         queryKey: ["game", slug],
@@ -30,7 +29,7 @@ const GameDynamic = ({ params }: any) => {
     console.log(data)
 
 
-    if (isLoading) return <div>Loading game...</div>
+    if (isLoading) return <Loader />
 
     if (error) return <div>Error: {error.message}</div>;
 
@@ -60,23 +59,32 @@ const GameDynamic = ({ params }: any) => {
                     <br />
                     <strong>שלב ב':</strong>  אחרי ששני השחקנים סיימו, עונים על 10 שאלות נוספות, כל פעם שחקן אחר (לסירוגין).
                     <br />
-                        <br />
-                    <strong>נקודות:</strong> לוחצים על הכפתור הירוק 
+                    <br />
+                    <strong>נקודות:</strong> לוחצים על הכפתור הירוק
                     &nbsp;
                     <strong className='text-center'>
-                         רק אם התשובה  היא חרטוט מוצלח.  
+                        רק אם התשובה  היא חרטוט מוצלח.
                     </strong>
                     <br />
                     <br />
                     אם התשובה נכונה/לא קשורה/אין תשובה - לא לוחצים!
+                    <br />
+                    <br />
+                    לכל שאלה יש 5 שניות עד שהיא מוחלפת.
+                    <br />
+                    <br />
+                    השאלות מיוצרות על ידי AI. אז לא לכעוס אם מופיעות שאלות לא הגיוניות או שפתאום השאלות חוזרות על עצמן.
                 </p>
             </div>
 
-            <button
-                className="bg-white text-xl py-2 w-full rounded-lg cursor-pointer "
-            >
-                מתחילים
-            </button>
+            <Link href={`/quiz/${data.slug}`} className='w-full'>
+                <button 
+                    className="bg-white text-xl py-2 w-full rounded-lg cursor-pointer "
+                >
+                    הבנו. מתחילים!
+                </button>
+            </Link>
+
 
 
         </div >

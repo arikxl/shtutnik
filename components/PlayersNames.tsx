@@ -70,7 +70,7 @@ const PlayersNames = () => {
 
 
             <button
-                className="mb-6 bg-white text-xl py-2 w-1/2 rounded-lg  cursor-pointer "
+                className="mb-6 bg-white text-xl py-2 w-7/10 rounded-lg cursor-pointer "
                 onClick={handleStartGame}
                 disabled={isPending}
             >
