@@ -34,6 +34,9 @@ export async function checkAuthConnection() {
 
 
 
+
+
+
 const exampleQuestions = [
     "תן רוטב נפוץ לסושי",
     "תני מילה נרדפת ל\"שמיים\"?",

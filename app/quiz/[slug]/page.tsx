@@ -2,20 +2,22 @@
 'use client'
 import NotFound from '@/app/not-found';
 import Loader from '@/components/Loader';
-import QuizQuestion from '@/components/QuizQuestion';
 import { supabase } from '@/supabase-client';
+import { Game } from '@/types/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import React from 'react'
+import React, { useRef, useState } from 'react' // ⭐️ 1. לייבא את useRef
+import QuizQuestion, { QuizQuestionHandle } from '@/components/QuizQuestion';
 
 
-const fetchPostById = async (slug: string) => {
+
+const fetchPostById = async (slug: string):Promise<Game> => {
   const { data, error } = await supabase.from("games").select("*").eq("slug", slug).single();
   if (error) throw new Error(error.message);
   return data;
 };
 
-const updateScoreAndTurn = async (currentGame: { is_player1_turn: any; player1_score: number; player2_score: number; slug: string; }) => {
+const updateScoreAndTurn = async (currentGame: Game) => {
   // חישוב הניקוד החדש והתור הבא
   const newPlayer1Score = currentGame.is_player1_turn
     ? currentGame.player1_score + 1
@@ -40,12 +42,18 @@ const updateScoreAndTurn = async (currentGame: { is_player1_turn: any; player1_s
   return data;
 };
 
-const Quiz = ({ params }: any) => {
+const Quiz = ({ params }: {params: {slug:string}}) => {
   const queryClient = useQueryClient(); // Get the client instance
 
   const { slug } = params;
 
-  const { data:game, error, isLoading } = useQuery({
+  const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
+
+
+  const quizQuestionRef = useRef<QuizQuestionHandle>(null);
+
+
+  const { data:game, error, isLoading } = useQuery<Game>({
     queryKey: ["game", slug],
     queryFn: () => fetchPostById(slug)
   })
@@ -59,6 +67,8 @@ const Quiz = ({ params }: any) => {
       // console.log('Score updated!');
       // console.log(game)
       queryClient.invalidateQueries({ queryKey: ['game', slug] });
+      quizQuestionRef.current?.getNewQuestion();
+
     },
     onError: (err) => {
       console.error("Failed to update score:", err);
@@ -74,18 +84,26 @@ const Quiz = ({ params }: any) => {
   if (error) return <div>Error: {error.message}</div>;
 
 
-  if (!game) NotFound()
-
+  if (!game) {
+    return <NotFound />;
+  }
 
   return (
     <div className='flex flex-col items-center py-20 space-y-6 px-6'>
+
+      <button onClick={() => setIsSoundOn(!isSoundOn)}>
+        {isSoundOn ? '🔊' : '🔇'}
+      </button>
+
       <h1 className='text-2xl'>
         בהצלחה&nbsp;
         {game.is_player1_turn ? game.player1_name : game.player2_name }
       </h1>
 
+      
 
-        <QuizQuestion />
+
+      <QuizQuestion ref={quizQuestionRef} isSoundOn={isSoundOn } />
 
       <div className='w-full'>
         <button disabled={isUpdating} onClick={() => addPoint()}
@@ -96,7 +114,8 @@ const Quiz = ({ params }: any) => {
         </button>
       </div>
 
-      <p>{game.player1_score}</p>
+      <p>player1_score {game.player1_score}</p>
+      <p>player2_score {game.player2_score}</p>
     </div>
   )
 }
