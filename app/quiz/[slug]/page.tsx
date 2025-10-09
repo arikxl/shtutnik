@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import NotFound from '@/app/not-found';
-import Loader from '@/components/Loader';
 import { supabase } from '@/supabase-client';
-import { Game } from '@/types/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import Link from 'next/link';
 import React, { useRef, useState } from 'react' // ⭐️ 1. לייבא את useRef
-import QuizQuestion, { QuizQuestionHandle } from '@/components/QuizQuestion';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import Loader from '@/components/Loader';
+import NotFound from '@/app/not-found';
+import QuizQuestion from '@/components/QuizQuestion';
+import { Game, QuizQuestionHandle } from '@/types/types';
+import { fetchGameById } from '@/app/api/quiz-create-question/game';
 
-
-const fetchPostById = async (slug: string):Promise<Game> => {
-  const { data, error } = await supabase.from("games").select("*").eq("slug", slug).single();
-  if (error) throw new Error(error.message);
-  return data;
-};
 
 const updateScoreAndTurn = async (currentGame: Game) => {
   // חישוב הניקוד החדש והתור הבא
@@ -55,7 +49,7 @@ const Quiz = ({ params }: {params: {slug:string}}) => {
 
   const { data:game, error, isLoading } = useQuery<Game>({
     queryKey: ["game", slug],
-    queryFn: () => fetchPostById(slug)
+    queryFn: () => fetchGameById(slug)
   })
 
   const { mutate: addPoint, isPending: isUpdating } = useMutation({
@@ -107,7 +101,6 @@ const Quiz = ({ params }: {params: {slug:string}}) => {
 
       <div className='w-full'>
         <button disabled={isUpdating} onClick={() => addPoint()}
-
           className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
         >
           חירטוט מעולה - נקודה אחת!

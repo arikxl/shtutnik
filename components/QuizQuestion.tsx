@@ -2,6 +2,7 @@
 'use client'
 import { QuizQuestionHandle } from '@/types/types';
 import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef } from 'react'
+import QuestionLoader from './QuestionLoader';
 
 interface QuizQuestionProps {
     isSoundOn: boolean;
@@ -96,7 +97,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isSoun
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             {question && (
                 <div>
-                    <p>{isLoading ? 'טוען שאלה...' : question}</p>
+                    <p>{isLoading ? <QuestionLoader/> : question}</p>
                 </div>
             )}
         </div>

@@ -28,7 +28,7 @@ const PlayersNames = () => {
             return createGame(slug, name1, name2)
         },
         onSuccess: () => {
-            console.log("Game created successfully! Navigating to gamePage.");
+            // console.log("Game created successfully! Navigating to gamePage.");
             router.push(`/game/${slug}`);
         },
     })

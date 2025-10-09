@@ -33,11 +33,7 @@ export async function checkAuthConnection() {
 }
 
 
-
-
-
-
-const exampleQuestions = [
+export const exampleQuestions = [
     "תן רוטב נפוץ לסושי",
     "תני מילה נרדפת ל\"שמיים\"?",
     "ספרי במשפט אחד את הסיפור של כיפה אדומה",
