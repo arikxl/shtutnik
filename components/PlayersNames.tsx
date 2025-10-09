@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react';
-import { generateRandomSlug } from '../utils/utils'
-import { supabase } from '@/supabase-client';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+
+import { supabase } from '@/supabase-client';
+import { generateRandomSlug } from '../utils/utils'
 
 const createGame = async (gameSlug: string, player1Name: string, player2Name: string) => {
     const { data, error } = await supabase.from('games').insert(
@@ -23,7 +24,7 @@ const PlayersNames = () => {
     const [name2, setName2] = useState('');
 
 
-    const { mutate, isPending, isError } = useMutation({
+    const { mutate, isPending, isError, error } = useMutation({
         mutationFn: () => {
             return createGame(slug, name1, name2)
         },
@@ -34,15 +35,16 @@ const PlayersNames = () => {
     })
 
 
-    const handleStartGame = () => {
-        if (!name1 || !name2) return;
-        mutate()
+    const handleStartGame = (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!name1.trim() || !name2.trim()) return;
+        mutate();
     };
 
 
     return (
 
-        <div className="w-full flex flex-col items-center h-full ">
+        <form onSubmit={handleStartGame} className="w-full flex flex-col items-center h-full ">
 
             <h1 className="mt-10 text-5xl font-bold">
                 מי משחק?
@@ -60,18 +62,15 @@ const PlayersNames = () => {
             <div className='mt-2 mb-20 w-full flex items-center justify-center'>
                 <input type='text' value={name2} required
                     onChange={(e) => setName2(e.target.value)}
-
                     placeholder='שם שחקן/ית 2'
                     className='bg-white w-7/10 text-center p-4'
-
                 />
             </div>
 
 
-
             <button
                 className="mb-6 bg-white text-xl py-2 w-7/10 rounded-lg cursor-pointer "
-                onClick={handleStartGame}
+                type="submit"
                 disabled={isPending}
             >
                 {isPending ? 'כבר מתחילים...' : 'בואו נתחיל!'}
@@ -79,9 +78,11 @@ const PlayersNames = () => {
 
             </button>
 
-            {isError && <p className='text-red-500'>Try Again...</p>}
+            {isError && <p className='text-red-500'>
+                אופס, משהו השתבש. נסו שוב. ({error.message})
+            </p>}
 
-        </div>
+        </form>
     )
 }
 

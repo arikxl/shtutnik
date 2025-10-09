@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import { QuizQuestionHandle } from '@/types/types';
 import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef } from 'react'
+
 import QuestionLoader from './QuestionLoader';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { QuizQuestionHandle } from '@/types/types';
 
 interface QuizQuestionProps {
     isSoundOn: boolean;
@@ -19,6 +21,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isSoun
     const lastSpokenQuestionRef = useRef<string | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+    const { speak } = useTextToSpeech();
 
 
     const getNewQuestion = async () => {
@@ -56,41 +59,15 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isSoun
 
     useEffect(() => {
         if (question && voices.length > 0 && question !== lastSpokenQuestionRef.current && isSoundOn) {
-            handleSpeak(question);
+            speak(question, isSoundOn);
             lastSpokenQuestionRef.current = question;
         }
-    }, [question, voices, isSoundOn]);
+    }, [question, isSoundOn, speak, voices.length]);
 
     useImperativeHandle(ref, () => ({
         getNewQuestion
     }));
 
-
-
-    const handleSpeak = (text: string) => {
-        if (!isSoundOn) return;
-
-        if (!('speechSynthesis' in window)) {
-            console.log("הדפדפן שלך לא תומך בהקראת טקסט.");
-            return;
-        }
-
-        window.speechSynthesis.cancel();
-
-        utteranceRef.current = new SpeechSynthesisUtterance(text);
-        utteranceRef.current.lang = 'he-IL';
-
-        const hebrewVoice = voices.find(voice => voice.lang === 'he-IL');
-        if (hebrewVoice && utteranceRef.current) {
-            utteranceRef.current.voice = hebrewVoice;
-        } else {
-            console.warn("לא נמצא קול בעברית, ייתכן שימוש בקול ברירת המחדל.");
-        }
-
-        if (utteranceRef.current) {
-            window.speechSynthesis.speak(utteranceRef.current);
-        }
-    };
 
     return (
         <div>

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import { supabase } from '@/supabase-client';
+import { useRouter } from 'next/navigation';
 import React, { useRef, useState } from 'react' // ⭐️ 1. לייבא את useRef
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Loader from '@/components/Loader';
-import NotFound from '@/app/not-found';
 import QuizQuestion from '@/components/QuizQuestion';
-import { Game, QuizQuestionHandle } from '@/types/types';
+import { supabase } from '@/supabase-client';
 import { fetchGameById } from '@/app/api/quiz-create-question/game';
+import { Game, QuizQuestionHandle } from '@/types/types';
 
 
 const updateScoreAndTurn = async (currentGame: Game) => {
@@ -36,7 +36,9 @@ const updateScoreAndTurn = async (currentGame: Game) => {
   return data;
 };
 
-const Quiz = ({ params }: {params: {slug:string}}) => {
+const Quiz = ({ params }: { params: { slug: string } }) => {
+  const router = useRouter();
+
   const queryClient = useQueryClient(); // Get the client instance
 
   const { slug } = params;
@@ -47,7 +49,7 @@ const Quiz = ({ params }: {params: {slug:string}}) => {
   const quizQuestionRef = useRef<QuizQuestionHandle>(null);
 
 
-  const { data:game, error, isLoading } = useQuery<Game>({
+  const { data: game, error, isLoading } = useQuery<Game>({
     queryKey: ["game", slug],
     queryFn: () => fetchGameById(slug)
   })
@@ -70,17 +72,15 @@ const Quiz = ({ params }: {params: {slug:string}}) => {
   });
 
 
-  
 
 
-  if (isLoading) return <Loader/>
+
+  if (isLoading) return <Loader />
 
   if (error) return <div>Error: {error.message}</div>;
 
 
-  if (!game) {
-    return <NotFound />;
-  }
+  if (!game) router.push(`/not-found`);
 
   return (
     <div className='flex flex-col items-center py-20 space-y-6 px-6'>
@@ -91,13 +91,13 @@ const Quiz = ({ params }: {params: {slug:string}}) => {
 
       <h1 className='text-2xl'>
         בהצלחה&nbsp;
-        {game.is_player1_turn ? game.player1_name : game.player2_name }
+        {game.is_player1_turn ? game.player1_name : game.player2_name}
       </h1>
 
-      
 
 
-      <QuizQuestion ref={quizQuestionRef} isSoundOn={isSoundOn } />
+
+      <QuizQuestion ref={quizQuestionRef} isSoundOn={isSoundOn} />
 
       <div className='w-full'>
         <button disabled={isUpdating} onClick={() => addPoint()}
