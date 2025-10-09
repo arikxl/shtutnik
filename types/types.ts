@@ -5,6 +5,7 @@ export type Game = {
     player1_score: number;
     player2_score: number;
     is_player1_turn: boolean;
+    level: number
     // ...כל שדה אחר שקיים בטבלת games
 };
 

@@ -81,7 +81,7 @@ const GameDynamic = ({ params }: any) => {
                 <button 
                     className="bg-white text-xl py-2 w-full rounded-lg cursor-pointer "
                 >
-                    הבנו. מתחילים!
+                    הבנו הכל
                 </button>
             </Link>
 
