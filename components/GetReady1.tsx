@@ -1,11 +1,10 @@
-import { advanceLevel } from '@/app/api/quiz-create-question/game'
 import React from 'react'
 
-const GetReady1 = ({ game, onStart }) => {
+const GetReady1 = ({ player, onStart }) => {
     return (
         <div className='flex flex-col items-center h-full justify-around text-2xl text-center'>
             <h1 className='text-4xl'>
-                <span className='underline ml-2'>{game.player1_name}</span>
+                <span className='underline ml-2'>{player}</span>
                 עכשיו תורך
             </h1>
             <div>

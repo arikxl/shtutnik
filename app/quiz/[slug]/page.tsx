@@ -1,26 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useRouter } from 'next/navigation';
-import React, { useRef, useState, useEffect } from 'react' // ⭐️ 1. לייבא את useRef
+import React, { useRef, useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Loader from '@/components/Loader';
 import QuizQuestion from '@/components/QuizQuestion';
 import { supabase } from '@/supabase-client';
-import { advanceLevel, fetchGameById, updateScoreAndTurn } from '@/app/api/quiz-create-question/game';
+import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
 import { Game, QuizQuestionHandle } from '@/types/types';
 import GetReady1 from '@/components/GetReady1';
+import { useParams } from 'next/navigation';
 
 
 
 // const Quiz = ({ params }: { params: { slug: string } }) => {
 
-export default function Quiz({ params }) {
+export default function Quiz() {
+
+  const params = useParams();
+  const slug = params.slug as string;
 
   const router = useRouter();
   const queryClient = useQueryClient(); // Get the client instance
 
-  const { slug } = params;
+  // const { slug } = params;
 
   const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
   const [isQLoading, setIsQLoading] = useState<boolean>(false);
@@ -39,9 +43,6 @@ export default function Quiz({ params }) {
   })
 
   useEffect(() => {
-    // כאשר isReady הופך ל-true, המשחק מוכן להתחיל.
-    // אנחנו קוראים לפונקציה כדי להביא את השאלה הראשונה.
-    // זה מבטיח שהיא תיקרא פעם אחת בלבד בתחילת כל שלב.
     if (isReady) {
       quizQuestionRef.current?.getNewQuestion();
     }
@@ -50,7 +51,7 @@ export default function Quiz({ params }) {
   const { mutate: addPoint, isPending: isUpdating } = useMutation({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
-      return updateScoreAndTurn(game);
+      return updateScore(game);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['game', slug] });
@@ -75,18 +76,27 @@ export default function Quiz({ params }) {
   });
 
 
+  const { mutate: changeTurnMutation, isPending: isChangingTurn } = useMutation<any, Error, void>({
+    mutationFn: () => {
+      if (!game) throw new Error("Game data is not available.");
+      return updateTurn(game);
+    },
+    onSuccess: () => {
+      setQuestionsCount(0);
+      setIsReady(false);
+      queryClient.invalidateQueries({ queryKey: ['game', slug] });
+    },
+    onError: (err) => console.error("Failed to change player turn:", err),
+  });
+
 
   if (!isReady) {
-    if (game.level === 1) {
-      // הקומפוננטה מקבלת פונקציה שמעדכנת את ה-state המקומי
-      return <GetReady1 game={game} onStart={() => setIsReady(true)} />;
-    }
-    if (game.level === 2) {
-      // כאן תוכל להוסיף קומפוננטת הכנה לשלב 2
-      return <div>Get Ready for Level 2!</div>;
+    if (game && game?.level === 1 || game && game?.level === 2) {
+      return <GetReady1 player={game.is_player1_turn ? game.player1_name : game.player2_name}
+        onStart={() => setIsReady(true)} />;
     }
     // Fallback for other levels or completed game
-    return <div>Game level: {game.level}</div>
+    return <div>Game level: {game?.level}</div>
   }
 
   if (isLoading) return <Loader />
@@ -117,12 +127,13 @@ export default function Quiz({ params }) {
         questionsCount={questionsCount} setQuestionsCount={setQuestionsCount}
         advanceLevelMutation={advanceLevelMutation}
         isAdvancingLevel={isAdvancingLevel}
+        changeTurnMutation={changeTurnMutation}
         isQLoading={isQLoading} setIsQLoading={setIsQLoading}
       />
 
 
       <div className='w-full'>
-        <button hidden={ isQLoading}
+        <button hidden={isQLoading}
           onClick={() => addPoint()}
           className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
         >

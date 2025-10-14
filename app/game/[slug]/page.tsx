@@ -5,7 +5,7 @@ import Loader from '@/components/Loader';
 import { supabase } from '@/supabase-client';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import React from 'react'
 
 
@@ -16,9 +16,11 @@ const fetchPostById = async (slug: string) => {
 }
 
 
-const GameDynamic = ({ params }: any) => {
+const GameDynamic = () => {
 
-    const { slug } = params;
+    // const { slug } = params;
+    const params = useParams();
+    const slug = params.slug as string;
 
     const { data, error, isLoading } = useQuery({
         queryKey: ["game", slug],
@@ -34,7 +36,11 @@ const GameDynamic = ({ params }: any) => {
     if (error) return <div>Error: {error.message}</div>;
 
 
-    if (!data) notFound()
+    if (!data && !isLoading) {
+        notFound();
+    }
+
+    if (!data) return <Loader />;
 
     return (
         <div className='flex flex-col items-center py-20 space-y-6 px-6'>
@@ -54,10 +60,10 @@ const GameDynamic = ({ params }: any) => {
                     <strong>מטרה:</strong> לחרטט תשובה שגויה, אך באותה הקטגוריה.
                     <br />
                     <br />
-                    <strong>שלב א':</strong> כל שחקן מקבל 10 שאלות אישיות ברצף.
+                    <strong>שלב א&apos;:</strong> כל שחקן מקבל 10 שאלות אישיות ברצף.
                     <br />
                     <br />
-                    <strong>שלב ב':</strong>  אחרי ששני השחקנים סיימו, עונים על 10 שאלות נוספות, כל פעם שחקן אחר (לסירוגין).
+                    <strong>שלב ב&apos;:</strong>  אחרי ששני השחקנים סיימו, עונים על 10 שאלות נוספות, כל פעם שחקן אחר (לסירוגין).
                     <br />
                     <br />
                     <strong>נקודות:</strong> לוחצים על הכפתור הירוק
@@ -78,7 +84,7 @@ const GameDynamic = ({ params }: any) => {
             </div>
 
             <Link href={`/quiz/${data.slug}`} className='w-full'>
-                <button 
+                <button
                     className="bg-white text-xl py-2 w-full rounded-lg cursor-pointer "
                 >
                     הבנו הכל

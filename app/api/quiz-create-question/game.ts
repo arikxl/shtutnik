@@ -9,7 +9,7 @@ export const fetchGameById = async (slug: string): Promise<Game> => {
 
 
 
- export const updateScoreAndTurn = async (currentGame: Game) => {
+ export const updateScore = async (currentGame: Game) => {
     // חישוב הניקוד החדש והתור הבא
     const newPlayer1Score = currentGame.is_player1_turn
         ? currentGame.player1_score + 1
@@ -34,6 +34,21 @@ export const fetchGameById = async (slug: string): Promise<Game> => {
     return data;
 };
 
+
+export const updateTurn = async (currentGame: Game) => {
+
+    const { data, error } = await supabase
+        .from('games')
+        .update({
+            is_player1_turn: !currentGame.is_player1_turn // הופכים את התור
+        })
+        .eq('slug', currentGame.slug);
+
+    if (error) {
+        throw new Error(error.message);
+    }
+    return data;
+};
 
 
 
