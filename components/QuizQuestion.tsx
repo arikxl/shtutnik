@@ -17,10 +17,15 @@ interface QuizQuestionProps {
     isAdvancingLevel: boolean;
     isQLoading: boolean;
     setIsQLoading: (value: boolean) => void;
+    level: number;
 }
 
 
-const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ changeTurnMutation, isQLoading, setIsQLoading, isAdvancingLevel, isSoundOn, setQuestionsCount, advanceLevelMutation }, ref) => {
+const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
+    { level, changeTurnMutation, isQLoading, setIsQLoading, isAdvancingLevel,
+        isSoundOn, setQuestionsCount, advanceLevelMutation },
+    ref) => {
+
     const [question, setQuestion] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -46,24 +51,39 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ change
             }
             const data = await response.json();
             setQuestion(data.question);
-            setQuestionsCount((currentCount: number) => {
-                let newCount = currentCount + 1;
-                if (newCount === 11) {
-                    advanceLevelMutation();
-                    changeTurnMutation()
-                    newCount = 0;
-                }
-                return newCount;
-            });
+            if (level !== 3) {
+                setQuestionsCount((currentCount: number) => {
+                    let newCount = currentCount + 1;
+                    if (newCount === 11) {
+                        advanceLevelMutation();
+                        changeTurnMutation()
+                        newCount = 0;
+                    }
+                    return newCount;
+                });
+            } else {
+                setQuestionsCount((currentCount: number) => {
+                    let newCount = currentCount + 1;
+                    console.log(newCount)
+                    console.log(level)
+                    if (newCount === 20) {
+                        advanceLevelMutation();
+                        newCount = 0;
+                    }
+                    return newCount;
+                });
+                changeTurnMutation()
+            }
+
         } catch (err: any) {
             setError(err.message);
         } finally {
             setIsQLoading(false);
         }
-    }, [setIsQLoading, setQuestionsCount, advanceLevelMutation, changeTurnMutation]);
+    }, [setIsQLoading, setQuestionsCount, advanceLevelMutation, changeTurnMutation, level]);
 
     useEffect(() => {
-        if (!isClient)  return; 
+        if (!isClient) return;
 
         const loadVoices = () => {
             setVoices(window.speechSynthesis.getVoices());

@@ -9,7 +9,7 @@ import { notFound, useParams } from 'next/navigation';
 import React from 'react'
 
 
-const fetchPostById = async (slug: string) => {
+const fetchGameById = async (slug: string) => {
     const { data, error } = await supabase.from("games").select("*").eq("slug", slug).single();
     if (error) throw new Error(error.message);
     return data;
@@ -24,7 +24,7 @@ const GameDynamic = () => {
 
     const { data, error, isLoading } = useQuery({
         queryKey: ["game", slug],
-        queryFn: () => fetchPostById(slug)
+        queryFn: () => fetchGameById(slug)
     })
 
 

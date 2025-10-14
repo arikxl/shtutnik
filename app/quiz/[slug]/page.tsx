@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Loader from '@/components/Loader';
-import QuizQuestion from '@/components/QuizQuestion';
-import { supabase } from '@/supabase-client';
-import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
-import { Game, QuizQuestionHandle } from '@/types/types';
 import GetReady1 from '@/components/GetReady1';
-import { useParams } from 'next/navigation';
+import QuizQuestion from '@/components/QuizQuestion';
+import { Game, QuizQuestionHandle } from '@/types/types';
+import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
+import GetReady2 from '@/components/GetReady2';
+import Temp from '@/components/Temp';
 
-
-
-// const Quiz = ({ params }: { params: { slug: string } }) => {
 
 export default function Quiz() {
 
@@ -22,9 +19,8 @@ export default function Quiz() {
   const slug = params.slug as string;
 
   const router = useRouter();
-  const queryClient = useQueryClient(); // Get the client instance
+  const queryClient = useQueryClient();
 
-  // const { slug } = params;
 
   const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
   const [isQLoading, setIsQLoading] = useState<boolean>(false);
@@ -48,7 +44,7 @@ export default function Quiz() {
     }
   }, [isReady]);
 
-  const { mutate: addPoint, isPending: isUpdating } = useMutation({
+  const { mutate: addPoint, isPending } = useMutation({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
       return updateScore(game);
@@ -76,7 +72,7 @@ export default function Quiz() {
   });
 
 
-  const { mutate: changeTurnMutation, isPending: isChangingTurn } = useMutation<any, Error, void>({
+  const { mutate: changeTurnMutation } = useMutation<any, Error, void>({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
       return updateTurn(game);
@@ -95,8 +91,12 @@ export default function Quiz() {
       return <GetReady1 player={game.is_player1_turn ? game.player1_name : game.player2_name}
         onStart={() => setIsReady(true)} />;
     }
+    if (game && game?.level === 3) {
+      return <GetReady2 game={game}
+        onStart={() => setIsReady(true)} />;
+    }
     // Fallback for other levels or completed game
-    return <div>Game level: {game?.level}</div>
+    return <Temp game={game} />
   }
 
   if (isLoading) return <Loader />
@@ -104,8 +104,7 @@ export default function Quiz() {
   if (error) return <div>Error: {error.message}</div>;
 
   if (!game) router.push(`/not-found`);
-  // console.log(game)
-  // console.log(game)
+
 
   return (
     <div className='flex flex-col items-center h-full justify-around text-center px-6'>
@@ -129,6 +128,7 @@ export default function Quiz() {
         isAdvancingLevel={isAdvancingLevel}
         changeTurnMutation={changeTurnMutation}
         isQLoading={isQLoading} setIsQLoading={setIsQLoading}
+        level={game.level}
       />
 
 
