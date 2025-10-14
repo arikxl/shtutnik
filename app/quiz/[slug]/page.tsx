@@ -13,20 +13,23 @@ import GetReady1 from '@/components/GetReady1';
 
 
 
-const Quiz = ({ params }: { params: { slug: string } }) => {
-  const router = useRouter();
+// const Quiz = ({ params }: { params: { slug: string } }) => {
 
+export default function Quiz({ params }) {
+
+  const router = useRouter();
   const queryClient = useQueryClient(); // Get the client instance
 
   const { slug } = params;
 
   const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
+  const [isQLoading, setIsQLoading] = useState<boolean>(false);
 
   const [questionsCount, setQuestionsCount] = useState(0);
 
-  const quizQuestionRef = useRef<QuizQuestionHandle>(null);
-
   const [isReady, setIsReady] = useState(false); // 1. הוספת state חדש למצב הממשק
+
+  const quizQuestionRef = useRef<QuizQuestionHandle>(null);
 
 
 
@@ -72,11 +75,6 @@ const Quiz = ({ params }: { params: { slug: string } }) => {
   });
 
 
-  // if (game && game.level === 1) return <GetReady1 game={game}
-  //   onAdvanceLevel={() => advanceLevelMutation()}
-  //   isAdvancing={isAdvancingLevel}
-  // />;
-
 
   if (!isReady) {
     if (game.level === 1) {
@@ -119,16 +117,21 @@ const Quiz = ({ params }: { params: { slug: string } }) => {
         questionsCount={questionsCount} setQuestionsCount={setQuestionsCount}
         advanceLevelMutation={advanceLevelMutation}
         isAdvancingLevel={isAdvancingLevel}
+        isQLoading={isQLoading} setIsQLoading={setIsQLoading}
       />
 
+
       <div className='w-full'>
-        <button disabled={isUpdating}
+        <button hidden={ isQLoading}
           onClick={() => addPoint()}
           className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
         >
           חירטוט מעולה - נקודה אחת!
         </button>
       </div>
+
+
+
 
       <div>
         <p>{game.player1_name} {game.player1_score}</p>
@@ -138,4 +141,4 @@ const Quiz = ({ params }: { params: { slug: string } }) => {
   )
 }
 
-export default Quiz
+// export default Quiz

@@ -5,8 +5,9 @@ const GetReady1 = ({ game, onStart }) => {
     return (
         <div className='flex flex-col items-center h-full justify-around text-2xl text-center'>
             <h1 className='text-4xl'>
-                <span className='underline'> {game.player1_name} </span>
-                עכשיו תורך.</h1>
+                <span className='underline ml-2'>{game.player1_name}</span>
+                עכשיו תורך
+            </h1>
             <div>
             <h2>יש לך 10 שאלות ברצף</h2>
             <h2>5 שניות לכל שאלה</h2>

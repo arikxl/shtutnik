@@ -12,12 +12,14 @@ interface QuizQuestionProps {
     setQuestionsCount: (updater: (count: number) => number) => void;
     advanceLevelMutation: () => void;
     isAdvancingLevel: boolean;
+    isQLoading: boolean;
+    setIsQLoading: (value: boolean) => void;
 }
 
 
-const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isAdvancingLevel, isSoundOn, questionsCount, setQuestionsCount, advanceLevelMutation }, ref) => {
+const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isQLoading, setIsQLoading, isAdvancingLevel, isSoundOn, questionsCount, setQuestionsCount, advanceLevelMutation }, ref) => {
     const [question, setQuestion] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    // const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -27,7 +29,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isAdva
 
 
     const getNewQuestion = async () => {
-        setIsLoading(true);
+        setIsQLoading(true);
         setError(null);
         try {
             const response = await fetch('/api/quiz-create-question', { method: 'POST' });
@@ -50,48 +52,48 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>(({ isAdva
         } catch (err: any) {
             setError(err.message);
         } finally {
-            setIsLoading(false);
+            setIsQLoading(false);
         }
     };
-    
+
     useEffect(() => {
         // getNewQuestion();
-        
+
         const loadVoices = () => {
             setVoices(window.speechSynthesis.getVoices());
         };
-        
+
         window.speechSynthesis.onvoiceschanged = loadVoices;
-        loadVoices(); 
-        
+        loadVoices();
+
         return () => {
             window.speechSynthesis.onvoiceschanged = null;
             window.speechSynthesis.cancel();
         };
     }, []);
-    
+
     useEffect(() => {
         if (question && voices.length > 0 && question !== lastSpokenQuestionRef.current && isSoundOn) {
             speak(question, isSoundOn);
             lastSpokenQuestionRef.current = question;
         }
     }, [question, isSoundOn, speak, voices.length]);
-    
+
     useImperativeHandle(ref, () => ({
         getNewQuestion
     }));
-    
-    
+
+
     // console.log(questionsCount)
     return (
-        <div>
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-            {question && (
-                <div>
-                    <p>{isLoading || isAdvancingLevel ? <QuestionLoader/> : question}</p>
-                </div>
-            )}
-        </div>
+            <div>
+                {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+                {question && (
+                    <div>
+                        <p>{isQLoading || isAdvancingLevel ? <QuestionLoader /> : question}</p>
+                    </div>
+                )}
+            </div>
     );
 });
 
