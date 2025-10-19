@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 export const useTextToSpeech = () => {
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
+
     useEffect(() => {
         const loadVoices = () => {
             setVoices(window.speechSynthesis.getVoices());

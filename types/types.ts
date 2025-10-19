@@ -6,10 +6,15 @@ export type Game = {
     player2_score: number;
     is_player1_turn: boolean;
     level: number
-    // ...כל שדה אחר שקיים בטבלת games
 };
 
 
 export type QuizQuestionHandle = {
     getNewQuestion: () => void;
 };
+
+
+
+export type ApiError = {
+    message: string;
+}

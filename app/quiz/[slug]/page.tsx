@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { useRouter, useParams } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react'
@@ -7,11 +6,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Loader from '@/components/Loader';
 import GetReady1 from '@/components/GetReady1';
 import QuizQuestion from '@/components/QuizQuestion';
-import { Game, QuizQuestionHandle } from '@/types/types';
+import { ApiError, Game, QuizQuestionHandle } from '@/types/types';
 import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
 import GetReady2 from '@/components/GetReady2';
 import Temp from '@/components/Temp';
-import { btnStyles, btnStyles2 } from '@/utils/utils';
+import { btnStyles2 } from '@/utils/utils';
 
 
 export default function Quiz() {
@@ -30,7 +29,7 @@ export default function Quiz() {
 
   const [isReady, setIsReady] = useState(false); // 1. הוספת state חדש למצב הממשק
 
-  const quizQuestionRef = useRef<QuizQuestionHandle>(null);
+  const quizQuestionRef = useRef<QuizQuestionHandle | null>(null);
 
 
 
@@ -45,7 +44,7 @@ export default function Quiz() {
     }
   }, [isReady]);
 
-  const { mutate: addPoint, isPending } = useMutation({
+  const { mutate: addPoint } = useMutation<Game, ApiError, void>({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
       return updateScore(game);
@@ -59,7 +58,7 @@ export default function Quiz() {
     }
   });
 
-  const { mutate: advanceLevelMutation, isPending: isAdvancingLevel } = useMutation<any, Error, void>({
+  const { mutate: advanceLevelMutation, isPending: isAdvancingLevel } = useMutation<Game, ApiError, void>({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
       return advanceLevel(game);
@@ -69,11 +68,11 @@ export default function Quiz() {
       setIsReady(false);
       queryClient.invalidateQueries({ queryKey: ['game', slug] });
     },
-    onError: (err) => console.error("Failed to advance level:", err),
+    onError: (err) => console.error("Failed to advance level:", err.message),
   });
 
 
-  const { mutate: changeTurnMutation } = useMutation<any, Error, void>({
+  const { mutate: changeTurnMutation } = useMutation<Game, ApiError, void>({
     mutationFn: () => {
       if (!game) throw new Error("Game data is not available.");
       return updateTurn(game);

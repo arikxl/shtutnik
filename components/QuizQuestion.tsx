@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef, useCallback } from 'react'
 
 import QuestionLoader from './QuestionLoader';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { QuizQuestionHandle } from '@/types/types';
-import { useMutation } from '@tanstack/react-query';
-import { updateTurn } from '@/app/api/quiz-create-question/game';
+// import { useMutation } from '@tanstack/react-query';
+// import { updateTurn } from '@/app/api/quiz-create-question/game';
 
 interface QuizQuestionProps {
     isSoundOn: boolean;
@@ -29,7 +28,9 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
     const [question, setQuestion] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
     const lastSpokenQuestionRef = useRef<string | null>(null);
+
     const { speak } = useTextToSpeech();
 
     const [isClient, setIsClient] = useState(false);
@@ -75,8 +76,10 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
                 changeTurnMutation()
             }
 
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const error = err instanceof Error ? err.message : "Unknown error";
+            setError(error);
+
         } finally {
             setIsQLoading(false);
         }
@@ -89,7 +92,6 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
             setVoices(window.speechSynthesis.getVoices());
         };
 
-        // ודא שהאובייקט קיים לפני השימוש בו
         if (window.speechSynthesis) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
             loadVoices();
