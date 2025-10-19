@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
+import AnimTitle from '@/components/AnimTitle';
 import Loader from '@/components/Loader';
 import { supabase } from '@/supabase-client';
 import { useQuery } from '@tanstack/react-query';
@@ -51,9 +52,9 @@ const GameDynamic = () => {
                 {data.player2_name}
             </h3>
 
-            <h1 className='text-6xl'>
-                ראש בראש
-            </h1>
+            <div className='text-6xl'>
+                <AnimTitle text='ראש בראש'/>
+            </div>
 
             <div className='mb-10'>
                 <p className='text-sm'>

@@ -48,11 +48,3 @@ export default function RootLayout({
 
 
 
-{/* <nav className=" flex justify-around">
-          <Link href='/instructions'>הוראות</Link>
-          <Link href='/quiz'>ראש בראש</Link>
-          <Link href='/meumat'>מאומת או מחורטט</Link>
-          <Link href='/tmunot'>תמו-NOT</Link>
-          <Link href='/results'>תוצאות</Link>
-          <Link href='/'>בית</Link>
-        </nav> */}

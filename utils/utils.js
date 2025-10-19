@@ -184,3 +184,68 @@ export const exampleQuestions = [
     "במה עסק נתן אלתרמן?",
     "צייני דמות חשובה מסרטי מלחמת הכוכבים"
 ];
+
+
+
+export const btnStyles =
+    `
+/* From Uiverse.io by satyamchaudharydev */
+#btn {
+  --bg: #a3ff00;
+  --text-color: black;
+  position: relative;
+  width: 100%;
+  curtsor:pointer
+  border: none;
+  background: var(--bg);
+  color: var(--text-color);
+  padding: 1em;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: 0.2s;
+  border-radius: 5px;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  box-shadow: #2a5c32 0px 7px 2px, #000 0px 8px 5px;
+}
+
+#btn:hover {
+  opacity: 1;
+}
+
+#btn:active {
+  top: 4px;
+  box-shadow: #2a5c32 0px 3px 2px,#000 0px 3px 5px;
+}
+    `
+
+
+
+
+export const btnStyles2 =
+    `
+#btn {
+    width:90%;
+  color: oklch(27.9% 0.041 260.031);
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  outline: none;
+  border-radius: 5px;
+  border: none;
+  background: #80ed99;
+  box-shadow: 0 7px #57cc99;
+  font-size:24px;
+}
+#btn:hover {
+  box-shadow: 0 3px #57cc99;
+  top: 1px;
+}
+#btn:active {
+  box-shadow: 0 0 #57cc99;
+  top: 5px;
+}
+    `

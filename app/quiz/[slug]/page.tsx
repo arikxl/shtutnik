@@ -11,6 +11,7 @@ import { Game, QuizQuestionHandle } from '@/types/types';
 import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
 import GetReady2 from '@/components/GetReady2';
 import Temp from '@/components/Temp';
+import { btnStyles, btnStyles2 } from '@/utils/utils';
 
 
 export default function Quiz() {
@@ -133,11 +134,14 @@ export default function Quiz() {
 
 
       <div className='w-full'>
+        <style>{btnStyles2}</style>
+
         <button hidden={isQLoading}
           onClick={() => addPoint()}
-          className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
+          id='btn'
+        // className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
         >
-          חירטוט מעולה - נקודה אחת!
+            חירטוט מעולה - נקודה אחת!
         </button>
       </div>
 

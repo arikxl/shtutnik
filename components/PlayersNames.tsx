@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { supabase } from '@/supabase-client';
 import { generateRandomSlug } from '../utils/utils'
+import AnimTitle from './AnimTitle';
 
 const createGame = async (gameSlug: string, player1Name: string, player2Name: string) => {
     const { data, error } = await supabase.from('games').insert(
@@ -46,9 +47,9 @@ const PlayersNames = () => {
 
         <form onSubmit={handleStartGame} className="w-full flex flex-col items-center h-full ">
 
-            <h1 className="mt-10 text-5xl font-bold">
-                מי משחק?
-            </h1>
+            <div className="mt-10 text-5xl font-bold">
+                <AnimTitle text='מי משחק?'/>
+            </div>
 
             <div className='my-10 w-full flex items-center justify-center'>
                 <input type='text' value={name1} required
