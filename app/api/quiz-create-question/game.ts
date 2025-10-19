@@ -1,22 +1,21 @@
-import { supabase } from "@/supabase-client";
 import { Game } from "@/types/types";
+import { supabase } from "@/supabase-client";
 
 export const fetchGameById = async (slug: string): Promise<Game> => {
     const { data, error } = await supabase.from("games").select("*").eq("slug", slug).single();
     if (error) throw new Error(error.message);
+    if (!data) throw new Error(error.message);
     return data;
 };
 
 
-
- export const updateScore = async (currentGame: Game) => {
-    // חישוב הניקוד החדש והתור הבא
+export const updateScore = async (currentGame: Game, points: number) => {
     const newPlayer1Score = currentGame.is_player1_turn
-        ? currentGame.player1_score + 1
+        ? currentGame.player1_score + points
         : currentGame.player1_score;
 
     const newPlayer2Score = !currentGame.is_player1_turn
-        ? currentGame.player2_score + 1
+        ? currentGame.player2_score + points
         : currentGame.player2_score;
 
     const { data, error } = await supabase
@@ -24,7 +23,6 @@ export const fetchGameById = async (slug: string): Promise<Game> => {
         .update({
             player1_score: newPlayer1Score,
             player2_score: newPlayer2Score,
-            // is_player1_turn: !currentGame.is_player1_turn, // הופכים את התור
         })
         .eq('slug', currentGame.slug);
 
@@ -35,12 +33,13 @@ export const fetchGameById = async (slug: string): Promise<Game> => {
 };
 
 
+
 export const updateTurn = async (currentGame: Game) => {
 
     const { data, error } = await supabase
         .from('games')
         .update({
-            is_player1_turn: !currentGame.is_player1_turn // הופכים את התור
+            is_player1_turn: !currentGame.is_player1_turn 
         })
         .eq('slug', currentGame.slug);
 

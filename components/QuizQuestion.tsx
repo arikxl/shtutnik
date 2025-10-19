@@ -1,17 +1,16 @@
 'use client'
+import { UseMutateFunction } from "@tanstack/react-query";
 import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef, useCallback } from 'react'
 
 import QuestionLoader from './QuestionLoader';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
-import { QuizQuestionHandle } from '@/types/types';
-// import { useMutation } from '@tanstack/react-query';
-// import { updateTurn } from '@/app/api/quiz-create-question/game';
+import { ApiError, QuizQuestionHandle } from '@/types/types';
 
 interface QuizQuestionProps {
+    advanceLevelMutation: UseMutateFunction<void, ApiError, void, unknown>;
     isSoundOn: boolean;
     questionsCount: number;
     setQuestionsCount: (updater: (count: number) => number) => void;
-    advanceLevelMutation: () => void;
     changeTurnMutation: () => void;
     isAdvancingLevel: boolean;
     isQLoading: boolean;
@@ -21,25 +20,22 @@ interface QuizQuestionProps {
 
 
 const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
-    { level, changeTurnMutation, isQLoading, setIsQLoading, isAdvancingLevel,
-        isSoundOn, setQuestionsCount, advanceLevelMutation },
+    { level, changeTurnMutation, isQLoading, setIsQLoading,
+        isSoundOn, setQuestionsCount, advanceLevelMutation, isAdvancingLevel },
     ref) => {
 
-    const [question, setQuestion] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [isClient, setIsClient] = useState(false);
+    const [question, setQuestion] = useState<string | null>(null);
 
     const lastSpokenQuestionRef = useRef<string | null>(null);
 
     const { speak } = useTextToSpeech();
 
-    const [isClient, setIsClient] = useState(false);
-
     useEffect(() => {
         setIsClient(true);
     }, []);
-
-
 
 
     const getNewQuestion = useCallback(async () => {
@@ -55,16 +51,6 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
             if (level !== 3) {
                 setQuestionsCount((currentCount: number) => {
                     let newCount = currentCount + 1;
-                    if (newCount === 11) {
-                        advanceLevelMutation();
-                        changeTurnMutation()
-                        newCount = 0;
-                    }
-                    return newCount;
-                });
-            } else {
-                setQuestionsCount((currentCount: number) => {
-                    let newCount = currentCount + 1;
                     console.log(newCount)
                     console.log(level)
                     if (newCount === 20) {
@@ -74,6 +60,17 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
                     return newCount;
                 });
                 changeTurnMutation()
+
+            } else {
+                setQuestionsCount((currentCount: number) => {
+                    let newCount = currentCount + 1;
+                    if (newCount === 11) {
+                        advanceLevelMutation();
+                        changeTurnMutation()
+                        newCount = 0;
+                    }
+                    return newCount;
+                });
             }
 
         } catch (err: unknown) {
@@ -83,7 +80,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
         } finally {
             setIsQLoading(false);
         }
-    }, [setIsQLoading, setQuestionsCount, advanceLevelMutation, changeTurnMutation, level]);
+    }, [setIsQLoading, level, setQuestionsCount, advanceLevelMutation, changeTurnMutation]);
 
     useEffect(() => {
         if (!isClient) return;
@@ -134,7 +131,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
             {question && (
                 <div>
-                    <p>{isQLoading || isAdvancingLevel ? <QuestionLoader /> : question}</p>
+                    {isQLoading || isAdvancingLevel ? <QuestionLoader /> : question}
                 </div>
             )}
         </div>

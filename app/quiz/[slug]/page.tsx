@@ -3,14 +3,16 @@ import { useRouter, useParams } from 'next/navigation';
 import React, { useRef, useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import Temp from '@/components/Temp';
 import Loader from '@/components/Loader';
 import GetReady1 from '@/components/GetReady1';
-import QuizQuestion from '@/components/QuizQuestion';
-import { ApiError, Game, QuizQuestionHandle } from '@/types/types';
-import { advanceLevel, fetchGameById, updateScore, updateTurn } from '@/app/api/quiz-create-question/game';
 import GetReady2 from '@/components/GetReady2';
-import Temp from '@/components/Temp';
+import QuizQuestion from '@/components/QuizQuestion';
 import { btnStyles2 } from '@/utils/utils';
+import { useScoreLogic } from '@/hooks/useScoreLogic';
+import { useLevelLogic } from '@/hooks/useLevelLogic';
+import { ApiError, Game, QuizQuestionHandle } from '@/types/types';
+import { fetchGameById, updateTurn } from '@/app/api/quiz-create-question/game';
 
 
 export default function Quiz() {
@@ -24,52 +26,29 @@ export default function Quiz() {
 
   const [isSoundOn, setIsSoundOn] = useState<boolean>(true);
   const [isQLoading, setIsQLoading] = useState<boolean>(false);
-
   const [questionsCount, setQuestionsCount] = useState(0);
+
 
   const [isReady, setIsReady] = useState(false); // 1. הוספת state חדש למצב הממשק
 
   const quizQuestionRef = useRef<QuizQuestionHandle | null>(null);
-
-
-
+  
+  
+  
   const { data: game, error, isLoading } = useQuery<Game>({
     queryKey: ["game", slug],
     queryFn: () => fetchGameById(slug)
   })
+  const advanceLevelMutation = useLevelLogic(game, slug);
+
+  const updateScoreMutation = useScoreLogic(game, slug, quizQuestionRef);
+
 
   useEffect(() => {
     if (isReady) {
       quizQuestionRef.current?.getNewQuestion();
     }
   }, [isReady]);
-
-  const { mutate: addPoint } = useMutation<Game, ApiError, void>({
-    mutationFn: () => {
-      if (!game) throw new Error("Game data is not available.");
-      return updateScore(game);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['game', slug] });
-      quizQuestionRef.current?.getNewQuestion();
-    },
-    onError: (err) => {
-      console.error("Failed to update score:", err);
-    }
-  });
-
-  const { mutate: advanceLevelMutation, isPending: isAdvancingLevel } = useMutation<Game, ApiError, void>({
-    mutationFn: () => {
-      if (!game) throw new Error("Game data is not available.");
-      return advanceLevel(game);
-    },
-    onSuccess: () => {
-      setQuestionsCount(0);
-      setIsReady(false);
-      queryClient.invalidateQueries({ queryKey: ['game', slug] });
-    },
-    onError: (err) => console.error("Failed to advance level:", err.message),
-  });
 
 
   const { mutate: changeTurnMutation } = useMutation<Game, ApiError, void>({
@@ -92,7 +71,7 @@ export default function Quiz() {
         onStart={() => setIsReady(true)} />;
     }
     if (game && game?.level === 3) {
-      return <GetReady2 game={game}
+      return <GetReady2 game={game} 
         onStart={() => setIsReady(true)} />;
     }
     // Fallback for other levels or completed game
@@ -120,12 +99,10 @@ export default function Quiz() {
       </h1>
 
 
-
-
       <QuizQuestion ref={quizQuestionRef} isSoundOn={isSoundOn}
         questionsCount={questionsCount} setQuestionsCount={setQuestionsCount}
-        advanceLevelMutation={advanceLevelMutation}
-        isAdvancingLevel={isAdvancingLevel}
+        advanceLevelMutation={advanceLevelMutation.mutate}
+        isAdvancingLevel={advanceLevelMutation.isPending}
         changeTurnMutation={changeTurnMutation}
         isQLoading={isQLoading} setIsQLoading={setIsQLoading}
         level={game.level}
@@ -136,15 +113,13 @@ export default function Quiz() {
         <style>{btnStyles2}</style>
 
         <button hidden={isQLoading}
-          onClick={() => addPoint()}
+          // onClick={() => addPoint()}
+          onClick={() => updateScoreMutation.mutate(2)}
           id='btn'
-        // className="bg-[lime] text-slate-900 border-slate-900 border-2 text-xl py-2 w-full rounded-lg cursor-pointer"
         >
-            חירטוט מעולה - נקודה אחת!
+          2 נקודות על חרטוט מעולה!
         </button>
       </div>
-
-
 
 
       <div>
@@ -154,5 +129,3 @@ export default function Quiz() {
     </div>
   )
 }
-
-// export default Quiz
