@@ -1,4 +1,6 @@
 LEVEL1: ראש בראש שחקן1  
+LEVEL1: ראש בראש שחקן1  
+LEVEL1: ראש בראש שחקן1  
 LEVEL2: ראש בראש שחקן2
 LEVEL3: סיבוב מהיר שחקן1
 LEVEL4: סיבוב מהיר שחקן2
@@ -9,3 +11,10 @@ LEVEL8: תמונות שחקן2
 LEVEL9: הדדיות1
 LEVEL10: הדדיות2
 LEVEL11: תוצאות
+
+
+LEVEL1: Intro
+LEVEL2: Players names
+LEVEL1: Intro
+LEVEL1: Intro
+LEVEL1: Intro

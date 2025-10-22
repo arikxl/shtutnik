@@ -16,11 +16,12 @@ interface QuizQuestionProps {
     isQLoading: boolean;
     setIsQLoading: (value: boolean) => void;
     level: number;
+    setIsReady: (value: boolean) => void;
 }
 
 
 const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
-    { level, changeTurnMutation, isQLoading, setIsQLoading,
+    { level, changeTurnMutation, isQLoading, setIsQLoading, setIsReady,
         isSoundOn, setQuestionsCount, advanceLevelMutation, isAdvancingLevel },
     ref) => {
 
@@ -51,6 +52,19 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
             if (level !== 3) {
                 setQuestionsCount((currentCount: number) => {
                     let newCount = currentCount + 1;
+                    if (newCount === 11) {
+                        advanceLevelMutation();
+                        changeTurnMutation()
+                        setIsReady(false)
+                        newCount = 0;
+                    }
+                    return newCount;
+                });
+
+            } else {
+
+                setQuestionsCount((currentCount: number) => {
+                    let newCount = currentCount + 1;
                     console.log(newCount)
                     console.log(level)
                     if (newCount === 20) {
@@ -60,17 +74,6 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
                     return newCount;
                 });
                 changeTurnMutation()
-
-            } else {
-                setQuestionsCount((currentCount: number) => {
-                    let newCount = currentCount + 1;
-                    if (newCount === 11) {
-                        advanceLevelMutation();
-                        changeTurnMutation()
-                        newCount = 0;
-                    }
-                    return newCount;
-                });
             }
 
         } catch (err: unknown) {
@@ -80,7 +83,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
         } finally {
             setIsQLoading(false);
         }
-    }, [setIsQLoading, level, setQuestionsCount, advanceLevelMutation, changeTurnMutation]);
+    }, [setIsQLoading, level, setQuestionsCount, advanceLevelMutation, changeTurnMutation, setIsReady]);
 
     useEffect(() => {
         if (!isClient) return;

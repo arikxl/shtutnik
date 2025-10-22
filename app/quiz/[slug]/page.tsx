@@ -13,6 +13,7 @@ import { useScoreLogic } from '@/hooks/useScoreLogic';
 import { useLevelLogic } from '@/hooks/useLevelLogic';
 import { ApiError, Game, QuizQuestionHandle } from '@/types/types';
 import { fetchGameById, updateTurn } from '@/app/api/quiz-create-question/game';
+import { useTurnLogic } from '@/hooks/useTurnLogic';
 
 
 export default function Quiz() {
@@ -51,19 +52,16 @@ export default function Quiz() {
   }, [isReady]);
 
 
-  const { mutate: changeTurnMutation } = useMutation<Game, ApiError, void>({
-    mutationFn: () => {
-      if (!game) throw new Error("Game data is not available.");
-      return updateTurn(game);
-    },
-    onSuccess: () => {
-      setQuestionsCount(0);
-      setIsReady(false);
-      queryClient.invalidateQueries({ queryKey: ['game', slug] });
-    },
-    onError: (err) => console.error("Failed to change player turn:", err),
-  });
 
+  const changeTurnMutation = useTurnLogic(game, slug);
+
+
+  if (isLoading) return <Loader />
+  if (error) return <div>Error: {error.message}</div>;
+  if (!game) {
+    router.push(`/not-found`);
+    return null;
+  }
 
   if (!isReady) {
     if (game && game?.level === 1 || game && game?.level === 2) {
@@ -78,11 +76,8 @@ export default function Quiz() {
     return <Temp game={game} />
   }
 
-  if (isLoading) return <Loader />
 
-  if (error) return <div>Error: {error.message}</div>;
 
-  if (!game) router.push(`/not-found`);
 
 
   return (
@@ -103,9 +98,10 @@ export default function Quiz() {
         questionsCount={questionsCount} setQuestionsCount={setQuestionsCount}
         advanceLevelMutation={advanceLevelMutation.mutate}
         isAdvancingLevel={advanceLevelMutation.isPending}
-        changeTurnMutation={changeTurnMutation}
+        changeTurnMutation={changeTurnMutation.mutate}
         isQLoading={isQLoading} setIsQLoading={setIsQLoading}
         level={game.level}
+        setIsReady={setIsReady}
       />
 
 
