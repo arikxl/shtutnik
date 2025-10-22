@@ -30,7 +30,7 @@ export default function Quiz() {
   const [questionsCount, setQuestionsCount] = useState(0);
 
 
-  const [isReady, setIsReady] = useState(false); // 1. הוספת state חדש למצב הממשק
+  const [isReady, setIsReady] = useState(false);
 
   const quizQuestionRef = useRef<QuizQuestionHandle | null>(null);
   
@@ -40,8 +40,8 @@ export default function Quiz() {
     queryKey: ["game", slug],
     queryFn: () => fetchGameById(slug)
   })
-  const advanceLevelMutation = useLevelLogic(game, slug);
 
+  const advanceLevelMutation = useLevelLogic(game, slug);
   const updateScoreMutation = useScoreLogic(game, slug, quizQuestionRef);
 
 
@@ -63,18 +63,28 @@ export default function Quiz() {
     return null;
   }
 
-  if (!isReady) {
-    if (game && game?.level === 1 || game && game?.level === 2) {
-      return <GetReady1 player={game.is_player1_turn ? game.player1_name : game.player2_name}
-        onStart={() => setIsReady(true)} />;
+  if (!isReady && game) {
+    switch (game.level) {
+      case 1:
+      case 2:
+        return (
+          <GetReady1
+            player={game.is_player1_turn ? game.player1_name : game.player2_name}
+            onStart={() => setIsReady(true)}
+          />
+        );
+      case 3:
+        return (
+          <GetReady2
+            game={game}
+            onStart={() => setIsReady(true)}
+          />
+        );
+      default:
+        return <Temp game={game} />;
     }
-    if (game && game?.level === 3) {
-      return <GetReady2 game={game} 
-        onStart={() => setIsReady(true)} />;
-    }
-    // Fallback for other levels or completed game
-    return <Temp game={game} />
   }
+
 
 
 

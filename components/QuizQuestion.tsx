@@ -49,7 +49,7 @@ const QuizQuestion = forwardRef<QuizQuestionHandle, QuizQuestionProps>((
             }
             const data = await response.json();
             setQuestion(data.question);
-            if (level !== 3) {
+            if (level=== 1 || level===2) {
                 setQuestionsCount((currentCount: number) => {
                     let newCount = currentCount + 1;
                     if (newCount === 11) {

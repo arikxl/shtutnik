@@ -1,5 +1,3 @@
-import { btnStyles2 } from '@/utils/utils'
-import React from 'react'
 
 const GetReady1 = ({ player, onStart }) => {
     return (
